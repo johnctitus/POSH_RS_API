@@ -636,3 +636,23 @@ param(
         Invoke-RestMethod -Uri "$uri" -Method DELETE -Headers (GetAuthToken) -ContentType application/json
     }
 }
+
+function Get-RSNextGenServerQuota {
+Param (
+    [Parameter()][switch]$rateLimit
+)
+    $product = "cloudServersOpenStack"
+
+    write-verbose "Getting Next Gen Server Quota"
+    write-debug "Parameters:$($MyInvocation.BoundParameters | format-table -AutoSize | out-string)"
+    
+    if ($rateLimit.IsPresent) { 
+        $apiResult = "rate"
+    } else {
+        $apiResult = "absolute"
+    }
+
+    $uri = (GetEndpoint -product $product) + "/limits"
+
+    (Invoke-RestMethod -Uri $uri -Method GET -Headers (GetAuthToken) -ContentType application/json).limits.($apiResult)
+}

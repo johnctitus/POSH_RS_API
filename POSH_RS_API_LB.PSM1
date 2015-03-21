@@ -330,3 +330,21 @@ Param (
 #Add LB metadata
 
 #Show LB Metadata
+
+function Get-RSLoadBalancerQuota {
+Param (
+    [Parameter()][switch]$rateLimit
+)
+    $product = "cloudLoadBalancers"
+
+    write-verbose "GettingLoad Balancer Quota"
+    write-debug "Parameters:$($MyInvocation.BoundParameters | format-table -AutoSize | out-string)"
+    $uri = (GetEndpoint -product $product)
+
+    if ($rateLimit.IsPresent) { 
+        (Invoke-RestMethod -Uri "$uri/limits" -Method GET -Headers (GetAuthToken) -ContentType application/json).limits.rate
+    } else {
+        (Invoke-RestMethod -Uri "$uri/loadbalancers/absolutelimits" -Method GET -Headers (GetAuthToken) -ContentType application/json).absolute
+    }
+}
+   

@@ -55,6 +55,9 @@
     return $script:RS_catalog
 }
 
+Function Get-RSDDI { return $script:RS_catalog.access.token.tenant.id }
+Function Get-RSAPIToken { return $script:RS_catalog.access.token.id }
+
 Function Get-RSRegion { return $script:RS_region }
 Function Get-RSRegions { return $script:RS_catalog.access.serviceCatalog.endpoints.region | Sort-Object |  Get-Unique }
 Function Get-RSProducts { return $script:RS_catalog.access.serviceCatalog.name }
@@ -89,6 +92,7 @@ Param (
         ($endpoints | where {$_.region -eq $RS_region}).publicURL
     }
 }
+
 
 function Invoke-RSAPIGET(){
     param( 
@@ -129,4 +133,19 @@ function Invoke-RSAPIPUT(){
     END {
 
     }   
+}
+
+function Invoke-RSAPICall(){
+    param( 
+        [Parameter(Mandatory=$True)][string]$product,
+        [Parameter(Mandatory=$True)][string]$URI,
+        [Parameter(Mandatory=$True)][ValidateSet("GET","POST","PUT","DELETE")][string]$Method,
+        [Parameter()][string]$body
+    )
+
+    if ($method -in @("POST","PUT")){
+        Invoke-RestMethod -Uri ((getendpoint -product $product) + $uri) -Method $method -Headers (GetAuthToken) -body $body -ContentType application/json
+    } else {
+        Invoke-RestMethod -Uri ((getendpoint -product $product) + $uri) -Method $method -Headers (GetAuthToken) -ContentType application/json
+    }
 }

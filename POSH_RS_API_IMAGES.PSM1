@@ -200,7 +200,7 @@ param(
         write-debug "Parameters:$($MyInvocation.BoundParameters | format-table -AutoSize | out-string)"
 
         $baseuri = GetEndpoint -product $product
-        $member = $RS_catalog.access.token.tenant.id
+        $member = get-RSDDI
         foreach ($image in $imageID) {
             $uri = $baseuri + "/images/$image/members/$member"
             $body = @{"status" = $status} | convertTo-Json  -Compress
