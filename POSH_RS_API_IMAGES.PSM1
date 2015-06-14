@@ -219,7 +219,60 @@ param(
 #Remove Image Tag
 
 #List Image tasks
+function Get-RSImageTasks(){
+    param( 
+        [Parameter()][string[]]$taskID
+    )
+
+    $product = "cloudImages"
+    $apiResult="tasks"
+    $uri = "/tasks"
+    $method = "GET"
+
+    write-verbose "Listing Image Tasks"
+    write-debug "Parameters:$($MyInvocation.BoundParameters | format-table -AutoSize | out-string)"
+    if ($taskID.count -gt 0){
+        (Invoke-RSAPICall -product $product -Uri $uri -Method $method -body $body).($apiResult)
+    } else {
+        foreach ($task in $taskID) {
+            (Invoke-RSAPICall -product $product -Uri "$uri/$task" -Method $method -body $body)
+        }
+    }
+}
 
 #Import Image
+function Import-RSImage(){
+    param( 
+        [Parameter()][string]$ImageName,
+        [Parameter()][string]$ImagePath
+    )
+
+    $product = "cloudImages"
+    $uri = "/tasks"
+    $method = "POST"
+    $body = @{"type"="import";"input"=@{"image_properties"=@{"name" = "$ImageName"};"import_from"="$ImagePath"}} | convertto-json -depth 10
+
+    write-verbose "Exporting Image $imageID"
+    write-debug "Parameters:$($MyInvocation.BoundParameters | format-table -AutoSize | out-string)"
+    (Invoke-RSAPICall -product $product -Uri "$uri" -Method $method -body $body)
+    
+}
 
 #Export Image
+function Export-RSImage(){
+    param( 
+        [Parameter()][string]$ImageID,
+        [Parameter()][string]$Container
+    )
+
+    $product = "cloudImages"
+    $uri = "/tasks"
+    $method = "POST"
+    $body = @{"type"="export";"input"=@{"image_uuid"="$imageID";"receiving_swift_container"="$Container"}} | convertto-json -depth 10
+
+
+    write-verbose "Exporting Image $imageID"
+    write-debug "Parameters:$($MyInvocation.BoundParameters | format-table -AutoSize | out-string)"
+    (Invoke-RSAPICall -product $product -Uri "$uri" -Method $method -body $body)
+    
+}

@@ -334,8 +334,13 @@ Param (
     write-verbose "Listing CLB Certificate Mappings"
     write-debug "Parameters:$($MyInvocation.BoundParameters | format-table -AutoSize | out-string)"
 
-    (Invoke-RSAPICall -product $product -Uri $uri -Method $method -body $body).certificateMappings.certificateMapping
+    $certmaps = (Invoke-RSAPICall -product $product -Uri $uri -Method $method -body $body).certificateMappings.certificateMapping
+
+    foreach ($cm in $certmaps) {
+        (Invoke-RSAPICall -product $product -Uri "$uri/$($cm.id)" -Method $method -body $body).certificateMapping
+    }
 }
+
 #Add certificate mappings
 function Add-RSLoadBalancerCertMapping {
 Param (
@@ -367,7 +372,35 @@ Param (
 }
 
 #Update certificate mapping
+function Update-RSLoadBalancerCertMapping {
+Param (
+    [Parameter(Mandatory=$True)][string]$LoadBalancerID,
+    [Parameter(Mandatory=$true)][string]$certificateMappingID,
+    [Parameter(Mandatory=$True)][string]$hostname,
+    [Parameter(Mandatory=$True)][string]$privateKey,
+    [Parameter(Mandatory=$True)][string]$certificate,
+    [Parameter(Mandatory=$True)][string]$IntermediateCertificate
+)
+    $product = "cloudLoadBalancers"
+    $apiResult="certificateMapping"
+    $uri = "/loadbalancers/$LoadBalancerID/ssltermination/certificatemappings/$certificateMappingID"
+    $method = "PUT"
 
+    $body = @{
+                "certificateMapping" = @{
+                   "hostName"                = "$hostName";
+                   "privateKey"              = "$privateKey";
+                   "certificate"             = "$certificate";
+                   "intermediateCertificate" = "$IntermediateCertificate"
+                }
+            
+            } | ConvertTo-Json -depth 10
+
+    write-verbose "Updating CLB Certificate Mappings"
+    write-debug "Parameters:$($MyInvocation.BoundParameters | format-table -AutoSize | out-string)"
+
+    (Invoke-RSAPICall -product $product -Uri $uri -Method $method -body $body).($apiResults)
+}
 #Delete certificate mapping
 
 #Add LB metadata
