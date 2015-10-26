@@ -153,8 +153,8 @@ param(
     $body = @{"server" =  @{}} 
     
     if ($name -ne "") { $body.server.add("name", $name) }
-    if ($AccessIPv4 -ne "") { $body.server.add("AccessIPv4", $AccessIPv4) }
-    if ($AccessIPv6 -ne "") { $body.server.add("AccessIPv6", $AccessIPv6) }
+    if ($AccessIPv4 -ne "") { $body.server.add("accessIPv4", $AccessIPv4) }
+    if ($AccessIPv6 -ne "") { $body.server.add("accessIPv6", $AccessIPv6) }
     
     $body = $body | ConvertTo-Json -Compress -depth 10
     write-debug $body
